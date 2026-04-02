@@ -18,7 +18,6 @@ class TaskRepository {
 
     fun updateTask(task: Task){
         _tasks.value = _tasks.value.map {
-            _tasks.value = _tasks.value.map {
                 taskItem -> if (taskItem.id == task.id) {
                     task.copy(isDone = task.isDone)
             }
@@ -26,6 +25,5 @@ class TaskRepository {
                     taskItem
             }
             }
-        }
     }
 }
