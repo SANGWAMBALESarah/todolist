@@ -1,6 +1,7 @@
 package com.example.todolist.ui
 
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,67 +23,56 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.todolist.data.Task
 import com.example.todolist.viewmodel.TaskViewModel
-
 @Composable
-fun TaskItem(task: Task, onToggle: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+fun TaskItem(task: Task,onToggle:()->Unit,onClick:()->Unit) {
+    Row (modifier=Modifier.fillMaxSize().padding(8.dp)){
         Checkbox(checked = task.isDone, onCheckedChange = { onToggle() })
-        Text(
-            text = task.name,
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 8.dp)
+        Text(text = task.name, modifier = Modifier.weight(1f).
+        padding(start = 8.dp)
+            .align(Alignment.CenterVertically)
+            .clickable { onClick() }
         )
+
     }
 }
 
 @Composable
-fun TaskScreen(
-    modifier: Modifier = Modifier,
-    viewModel: TaskViewModel = viewModel()
-) {
+fun TaskScreen(navController: NavController, viewModel: TaskViewModel= viewModel()) {
     val tasks by viewModel.tasks.collectAsState()
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 32.dp)
-    ) {
+    Column(modifier = Modifier.fillMaxSize().padding(top=32.dp).padding(all = 16.dp)) {
         var taskName by remember { mutableStateOf("") }
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 16.dp)
-        ) {
+        Row {
             OutlinedTextField(
                 value = taskName,
                 onValueChange = { taskName = it },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 16.dp),
+                modifier = Modifier.weight(1f).padding(16.dp),
                 singleLine = true,
-                label = { Text(text = "Nom de la tache") },
+                label = { Text("Nom de la tâche") },
             )
             Button(onClick = {
                 if (taskName.isNotBlank()) {
                     viewModel.addTask(taskName)
                     taskName = ""
                 }
-            }) {
+            }, modifier = Modifier.align(Alignment.CenterVertically)) {
                 Text("Ajouter")
             }
         }
 
         LazyColumn {
             items(tasks) { task ->
-                TaskItem(task, onToggle = { viewModel.updateTask(task) })
+                TaskItem(task,
+                    onToggle = {
+                        viewModel.updateTask(task)
+                    },
+                    onClick = {navController.navigate("task_detail/${task.id}")}
+
+
+                )
             }
         }
     }
